@@ -37,78 +37,88 @@ classifier.fit(X_train, Y_train)
 st.title('Diyabet Hastalığı Tespit Sistemi')
 
 
-# getting the user information from the user
+# getting the input data from the user
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    Pregnancies = st.text_input('Ad')
+    Ad = st.text_input('Ad')
     
 with col2:
-    Glucose = st.text_input('Soyad')
+    Soyad = st.text_input('Soyad')
 
 with col3:
-    BloodPressure = st.text_input('E-posta')
+    Eposta = st.text_input('E-posta')
 
     
-st.header("Diyabet test bilgileri")
- # getting the input data from the user
+st.header("Diyabet Test Bilgileri")
+    
 col1, col2, col3 = st.columns(3)
 with col1:
-    Pregnancies = st.text_input('Gebelik sayısı')
+    Pregnancies = st.number_input('Gebelik sayısı', min_value=0, max_value=20)
     
 with col2:
-    Glucose = st.text_input('Glikoz miktarı')
+    Glucose = st.number_input('Glikoz miktarı', min_value=0, max_value=200)
 
 with col3:
-    BloodPressure = st.text_input('Kan basıncı')
+    BloodPressure = st.number_input('Kan basıncı', min_value=0, max_value=150)
 
 with col1:
-    SkinThickness = st.text_input('Cilt kalınlığı değeri')
+    SkinThickness = st.number_input('Cilt kalınlığı değeri', min_value=0, max_value=100)
 
 with col2:
-    Insulin = st.text_input('İnsülin miktarı')
+    Insulin = st.number_input('İnsülin miktarı', min_value=0, max_value=1000)
 
 with col3:
-    BMI = st.text_input('BMI (Vücut kitle indeksi)')
+    BMI = st.number_input('BMI (Vücut kitle indeksi)', min_value=0, max_value=80)
 
 with col1:
-    DiabetesPedigreeFunction = st.text_input('Diyabet soyağacı fonksiyonu')
+    DiabetesPedigreeFunction = st.number_input('Diyabet soyağacı fonksiyonu', min_value=0, max_value=3)
 
 with col2:
-    Age = st.text_input('Yaş')
+    Age = st.number_input('Yaş', min_value=0, max_value=110)
 
 
 # code for Prediction
 diab_diagnosis = ''
 
-# creating a button for Prediction
-if st.button('Diabetes Test Result'):
-    #diab_prediction = diabetes_model.predict([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
-    diab_prediction = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
-    # changing the input_data to numpy array
-    input_data_as_numpy_array = np.asarray(diab_prediction)
+agree = st.checkbox('Bilgilerimin işlenmesini onaylıyorum. (Girilen bilgiler üçüncü kişiler ile paylaşılmayacaktır.)')
 
-    # reshape the array as we are predicting for one instance
-    input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
-    # standardize the input data
-    std_data = scaler.transform(input_data_reshaped)
-    prediction = classifier.predict(std_data)
+if agree:
     
-    if (prediction[0] == 1):
-      diab_diagnosis = 'şeker hastasısınız'
-    else:
-      diab_diagnosis = 'şeker hastası değilsiniz'
+    # creating a button for Prediction
+    if st.button('Test Sonucunu Görüntüleyin'):
+        #diab_prediction = diabetes_model.predict([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
+        diab_prediction = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
+        # changing the input_data to numpy array
+        input_data_as_numpy_array = np.asarray(diab_prediction)
+
+        # reshape the array as we are predicting for one instance
+        input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+        # standardize the input data
+        std_data = scaler.transform(input_data_reshaped)
+        prediction = classifier.predict(std_data)
+    
+        if (prediction[0] == 1):
+            diab_diagnosis = 'Diyabet Hastasısınız'
+            st.error(diab_diagnosis)
+        else:
+            diab_diagnosis = 'Şeker Hastası Değilsiniz'
+            st.success(diab_diagnosis)
       
       
-    input_list = diab_prediction
-    input_list.append(prediction[0])
+        input_list = diab_prediction
+        input_list.append(prediction[0])
 
 
-# Open file in append mode
-    with open('diabetes.csv', 'a+', newline='') as write_obj:
-        # Create a writer object from csv module
-        csv_writer = writer(write_obj)
-        # Add contents of list as last row in the csv file
-        csv_writer.writerow(input_list)
+    # Open file in append mode
+        with open('diabetes.csv', 'a+', newline='') as write_obj:
+            # Create a writer object from csv module
+            csv_writer = writer(write_obj)
+            # Add contents of list as last row in the csv file
+            csv_writer.writerow(input_list)
     
-st.success(diab_diagnosis)
+    
+    
+
+else:
+    diab_diagnosis = 'Gerekli alanları doldurun'
