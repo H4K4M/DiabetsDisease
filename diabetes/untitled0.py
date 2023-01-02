@@ -25,14 +25,25 @@ cursor = conn.cursor()
 # cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
 # conn.commit()
 
-cursor.execute("SELECT HastaID from Hasta where eposta='asdas'" )
-HastaID = cursor.fetchall()
+# cursor.execute("SELECT HastaID from Hasta where eposta='asdas'" )
+# HastaID = cursor.fetchall()
+# conn.commit()
+# HastaID = HastaID[0][0]
+# # print(HastaID[0][0])
+# # print(type(HastaID[0][0]))
+# date = date.today()
+# Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, date, result = 0,15,100,10,50,30,1.2,30,str(date),1
+# params = (HastaID, Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, date, result)
+# cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
+# conn.commit()
+
+
+cursor.execute("EXEC HastaTestGetir @eposta = 'asdas'")
+message = cursor.fetchall()
 conn.commit()
-HastaID = HastaID[0][0]
-# print(HastaID[0][0])
-# print(type(HastaID[0][0]))
-date = date.today()
-Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, date, result = 0,15,100,10,50,30,1.2,30,str(date),1
-params = (HastaID, Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, date, result)
-cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
-conn.commit()
+
+print(message[-1][1])
+
+
+
+

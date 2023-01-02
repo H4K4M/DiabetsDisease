@@ -13,10 +13,11 @@ from sklearn import svm
 from csv import writer
 from datetime import date
 import pyodbc 
+import smtplib, ssl
 
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=H4K4MSPC\SQLEXPRESS;'
-                      'Database=DIABETES;'
+                      'Database=Diabetes_DB;'
                       'Trusted_Connection=yes;')
 
 cursor = conn.cursor() 
@@ -119,9 +120,14 @@ if agree:
         input_list = diab_prediction
         input_list.append(prediction[0])
         
-        #Add Hasta to DB_TBL
-        cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
+        cursor.execute("SELECT eposta from Hasta where eposta=?",Eposta )
+        eposta = cursor.fetchall()
         conn.commit()
+        
+        if len(eposta) == 0:
+            #Add Hasta to DB_TBL
+            cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
+            conn.commit()
         
         cursor.execute("SELECT HastaID from Hasta where eposta=?",Eposta )
         HastaID = cursor.fetchall()
@@ -134,6 +140,36 @@ if agree:
         params = (HastaID, Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, str(date), result)
         cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
         conn.commit()
+        
+        
+        # Sending Email
+        port = 465  # For SSL
+        smtp_server = "smtp.gmail.com"
+        sender_email = "diabetespredictionn@gmail.com"  # Enter your address
+        receiver_email = Eposta  # Enter receiver address
+        password = "diyabet1234@"
+        
+        
+        cursor.execute("EXEC HastaTestGetir @eposta = ?",Eposta)
+        GetData  = cursor.fetchall()
+        conn.commit()
+        TestID = GetData[-1][0]
+        Name = GetData[-1][1]
+        date = GetData[-1][2]
+        TestResult = ""
+        if GetData[-1][-1] == 1:           
+            TestResult = "Pozitiftir."
+        else:
+            TestResult = "negatiftir."
+        
+        message = "Sayın " + str(Name) +", "+ str(date) + " tarihinde yaptırmış olduğunuz "+ str(TestID) + " numaralı son testin sonucu "+str(TestResult)
+        
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message)
+        
+        
         
 
     # Open file in append mode
