@@ -15,9 +15,9 @@ conn = pyodbc.connect('Driver={SQL Server};'
 cursor = conn.cursor() 
 
 
-Ad = "sgfdg"
-Soyad = "dafsd"
-Eposta = "adsafere"
+Ad = str(input("Ad: "))
+Soyad = str(input("Soyad: "))
+Eposta = str(input("E-posta: "))
 
 # cursor.execute("INSERT INTO Hasta (Ad, Soyad, Eposta) VALUES(?,?,?)",(Ad,Soyad,Eposta))
 # conn.commit()
