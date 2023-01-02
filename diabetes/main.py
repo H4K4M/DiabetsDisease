@@ -34,24 +34,27 @@ pickle.dump(classifier,open(filename,'wb'))
 trained_model = pickle.load(open('D:\Documents(D)\diabetes\diabetes_trained_model.sav','rb'))
 # loading the diabetes dataset to a pandas DataFrame
 
-# input_data = [1,93,70,31,0,30.4,0.315,23]
-# #input_data = [6,148,72,35,0,33.6,0.627,50]
+input_data = [1,93,70,31,0,30.4,0.315,23]
+#input_data = [6,148,72,35,0,33.6,0.627,50]
 
-# # changing the input_data to numpy array
-# input_data_as_numpy_array = np.asarray(input_data)
+# changing the input_data to numpy array
+input_data_as_numpy_array = np.asarray(input_data)
 
-# # reshape the array as we are predicting for one instance
-# input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
-# print(input_data_reshaped)
-# # standardize the input data
-# std_data = scaler.transform(input_data_reshaped)
-# print(std_data)
-# prediction = trained_model.predict(std_data)
-# print(prediction)
-# if (prediction[0] == 0):
-#   print('The person is not diabetic')
-# else:
-#   print('The person is diabetic')
+# reshape the array as we are predicting for one instance
+input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+print(input_data_reshaped)
+# standardize the input data
+std_data = scaler.transform(input_data_reshaped)
+print(std_data)
+prediction = trained_model.predict(std_data)
+print(prediction)
+if (prediction[0] == 0):
+  print('The person is not diabetic')
+else:
+  print('The person is diabetic')
+  
+print(prediction[0])
+print(type(int(prediction[0])))
 
 # #input_list = input_data_as_numpy_array.tolist()
 # input_list = input_data
@@ -67,33 +70,33 @@ trained_model = pickle.load(open('D:\Documents(D)\diabetes\diabetes_trained_mode
 #     csv_writer.writerow(input_list)
 
 
-import unittest
-class TestResult(unittest.TestCase):
+# import unittest
+# class TestResult(unittest.TestCase):
     
 
     
-    def test_two(self):
-        self.assertTrue(is_sick(6,148,72,35,0,33.6,0.627,50))
+#     def test_two(self):
+#         self.assertTrue(is_sick(6,148,72,35,0,33.6,0.627,50))
 
     
     
    
-def is_sick(Pregnancies, Glucose, BloodPressure,	SkinThickness,	Insulin,	BMI,	DiabetesPedigreeFunction,	Age):
-  input_data = [Pregnancies, Glucose, BloodPressure,	SkinThickness,	Insulin,	BMI,	DiabetesPedigreeFunction,	Age]
-  input_data_as_numpy_array = np.asarray(input_data)
+# def is_sick(Pregnancies, Glucose, BloodPressure,	SkinThickness,	Insulin,	BMI,	DiabetesPedigreeFunction,	Age):
+#   input_data = [Pregnancies, Glucose, BloodPressure,	SkinThickness,	Insulin,	BMI,	DiabetesPedigreeFunction,	Age]
+#   input_data_as_numpy_array = np.asarray(input_data)
 
-  # reshape the array as we are predicting for one instance
-  input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
-  print(input_data_reshaped)
-  # standardize the input data
-  std_data = scaler.transform(input_data_reshaped)
-  print(std_data)
-  prediction = trained_model.predict(std_data)
-  print(prediction)
-  if (prediction[0] == 0):
-    return False
-  else:
-    return True
+#   # reshape the array as we are predicting for one instance
+#   input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+#   print(input_data_reshaped)
+#   # standardize the input data
+#   std_data = scaler.transform(input_data_reshaped)
+#   print(std_data)
+#   prediction = trained_model.predict(std_data)
+#   print(prediction)
+#   if (prediction[0] == 0):
+#     return False
+#   else:
+#     return True
 
 
-unittest.main()
+# unittest.main()
