@@ -11,6 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from csv import writer
+from datetime import date
 import pyodbc 
 
 conn = pyodbc.connect('Driver={SQL Server};'
@@ -66,22 +67,22 @@ with col1:
     Pregnancies = st.number_input('Gebelik sayısı', min_value=0, max_value=20)
     
 with col2:
-    Glucose = st.number_input('Glikoz miktarı', min_value=0, max_value=200)
+    Glucose = float(st.number_input('Glikoz miktarı', min_value=0, max_value=200))
 
 with col3:
-    BloodPressure = st.number_input('Kan basıncı', min_value=0, max_value=150)
+    BloodPressure = float(st.number_input('Kan basıncı', min_value=0, max_value=150))
 
 with col1:
-    SkinThickness = st.number_input('Cilt kalınlığı değeri', min_value=0, max_value=100)
+    SkinThickness = float(st.number_input('Cilt kalınlığı değeri', min_value=0, max_value=100))
 
 with col2:
-    Insulin = st.number_input('İnsülin miktarı', min_value=0, max_value=1000)
+    Insulin = float(st.number_input('İnsülin miktarı', min_value=0, max_value=1000))
 
 with col3:
-    BMI = st.number_input('BMI (Vücut kitle indeksi)', min_value=0, max_value=80)
+    BMI = float(st.number_input('BMI (Vücut kitle indeksi)', min_value=0, max_value=80))
 
 with col1:
-    DiabetesPedigreeFunction = st.number_input('Diyabet soyağacı fonksiyonu', min_value=0, max_value=3)
+    DiabetesPedigreeFunction = float(st.number_input('Diyabet soyağacı fonksiyonu', min_value=0, max_value=3))
 
 with col2:
     Age = st.number_input('Yaş', min_value=0, max_value=110)
@@ -122,7 +123,17 @@ if agree:
         cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
         conn.commit()
         
+        cursor.execute("SELECT HastaID from Hasta where eposta=?",Eposta )
+        HastaID = cursor.fetchall()
+        conn.commit()
         
+        HastaID = HastaID[0][0]
+        result = int(prediction[0])
+        date = date.today()
+        #Add Hasta to DB_TBL
+        params = (HastaID, Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, str(date), result)
+        cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
+        conn.commit()
         
 
     # Open file in append mode
