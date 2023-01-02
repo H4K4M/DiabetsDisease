@@ -15,7 +15,7 @@ import pyodbc
 
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=H4K4MSPC\SQLEXPRESS;'
-                      'Database=Diabetes_DB;'
+                      'Database=DIABETES;'
                       'Trusted_Connection=yes;')
 
 cursor = conn.cursor() 
@@ -114,12 +114,16 @@ if agree:
             diab_diagnosis = 'Şeker Hastası Değilsiniz'
             st.success(diab_diagnosis)
       
-      
+            
         input_list = diab_prediction
         input_list.append(prediction[0])
         
+        #Add Hasta to DB_TBL
         cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
         conn.commit()
+        
+        
+        
 
     # Open file in append mode
         with open('diabetes.csv', 'a+', newline='') as write_obj:
