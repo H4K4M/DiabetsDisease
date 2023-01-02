@@ -11,6 +11,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from csv import writer
+import pyodbc 
+
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=H4K4MSPC\SQLEXPRESS;'
+                      'Database=Diabetes_DB;'
+                      'Trusted_Connection=yes;')
+
+cursor = conn.cursor() 
+    
 
 
 diabetes_dataset = pd.read_csv('D:\Documents(D)\diabetes\diabetes.csv')
@@ -108,7 +117,9 @@ if agree:
       
         input_list = diab_prediction
         input_list.append(prediction[0])
-
+        
+        cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
+        conn.commit()
 
     # Open file in append mode
         with open('diabetes.csv', 'a+', newline='') as write_obj:
