@@ -10,28 +10,28 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
-from csv import writer
 from datetime import date
 import pyodbc
 from email.message import EmailMessage
 import ssl
 import smtplib
 
+# Connect to database
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=H4K4MSPC\SQLEXPRESS;'
                       'Database=DIABETES;'
                       'Trusted_Connection=yes;')
-
 cursor = conn.cursor() 
     
-
-
+# -----------------------------------train model----------------------------------- #
+# Read dataset
 diabetes_dataset = pd.read_csv(r"D:\Documents(D)\Git\DiabetsDisease\diabetes\diabetes.csv")
-# separating the data and labels
+
+# Separating the data and labels
 X = diabetes_dataset.drop(columns = 'Outcome', axis=1)
 Y = diabetes_dataset['Outcome']
 
-#Standardization Data
+# Standardization Data
 scaler = StandardScaler()
 scaler.fit(X)
 standardized_data = scaler.transform(X)
@@ -41,16 +41,16 @@ Y = diabetes_dataset['Outcome']
 #Split train and test data  80:20
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.2, stratify=Y, random_state=2)
 classifier = svm.SVC(kernel='linear')
+
 #training the support vector Machine Classifier
 classifier.fit(X_train, Y_train)
+# -----------------------------------train model----------------------------------- #
 
-
-
+# ------------------------------- Web page ------------------------------------ #
 # page title
 st.title('Diyabet Hastalığı Tespit Sistemi')
 
-
-# getting the input data from the user
+# Getting Ad Soyad E-mail from the user
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -62,9 +62,9 @@ with col2:
 with col3:
     Eposta = st.text_input('E-posta*')
 
-    
 st.header("Diyabet Test Bilgileri")
-    
+
+# Getting Diyabet Test Bilgileri
 col1, col2, col3 = st.columns(3)
 with col1:
     Pregnancies = st.number_input('Gebelik sayısı', min_value=0, max_value=20)
@@ -90,14 +90,13 @@ with col1:
 with col2:
     Age = st.number_input('Yaş', min_value=0, max_value=110)
 
-
-# code for Prediction
 diab_diagnosis = ''
 
+# Checkbok => Button will apear when checkbox is checked
 agree = st.checkbox('Bilgilerimin işlenmesini onaylıyorum. (Girilen bilgiler üçüncü kişiler ile paylaşılmayacaktır.)')
 
 
-
+# -------------------------Send Email fucntion------------------------- #
 def SendEmail():
     email_sender = 'diabetespredictionn@gmail.com'
     email_password = 'uppcuyiimiujdjdj'
@@ -137,74 +136,78 @@ def SendEmail():
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context = context) as smtp:
         smtp.login(email_sender, email_password)
         smtp.sendmail(email_sender, email_receiver, em.as_string())
+# -------------------------Send Email fucntion------------------------- #
 
-
-
-if agree:
-    
+# ------------------------Test and Show Result------------------------ #
+if agree:  
     # creating a button for Prediction
     if st.button('Test Sonucunu Görüntüleyin'):
+        # If Ad Soyad E-mail textbox is no value Error message will show
         if Ad == "" and Soyad == "" and Eposta == "":
             diab_diagnosis = 'Gerekli alanları doldurun'
             st.error(diab_diagnosis)
-            
+        
+        # Test and Show Result
         else:
-            #diab_prediction = diabetes_model.predict([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
+            # Create list of input data to predict 
             diab_prediction = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
+            
             # changing the input_data to numpy array
             input_data_as_numpy_array = np.asarray(diab_prediction)
     
             # reshape the array as we are predicting for one instance
             input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+            
             # standardize the input data
             std_data = scaler.transform(input_data_reshaped)
+            
+            # prediction
             prediction = classifier.predict(std_data)
         
+            # --------- Showing result ---------------#
+            # Diabetic
             if (prediction[0] == 1):
+                # ---- show output ----#
                 diab_diagnosis = 'Diyabet Hastasısınız'
                 st.error(diab_diagnosis)
+                # ---- show output ----#
+                # send email
                 SendEmail()
+            # No diabetic
             else:
-                diab_diagnosis = 'Şeker Hastası Değilsiniz'
+                # ---- show output ----#
+                diab_diagnosis = 'Diyabet Hastası Değilsiniz'
                 st.success(diab_diagnosis)
+                # ---- show output ----#
+                # send email
                 SendEmail()
-          
-                
-            input_list = diab_prediction
-            input_list.append(prediction[0])
+            # --------- Showing result ---------------#
             
+            # ------Check the email if it is already in database------ #
             cursor.execute("SELECT eposta from Hasta where eposta=?",Eposta )
             eposta = cursor.fetchall()
             conn.commit()
-            
+            # if not add to database 
             if len(eposta) == 0:
                 #Add Hasta to DB_TBL
                 cursor.execute("EXEC HastaEkle @ad=?, @soyad=?, @eposta = ?",Ad,Soyad,Eposta)
                 conn.commit()
+            # ------Check the email if it is already in database------ #
             
+            # get HastaID
             cursor.execute("SELECT HastaID from Hasta where eposta=?",Eposta )
             HastaID = cursor.fetchall()
             conn.commit()
-            
-            HastaID = HastaID[0][0]
-            result = int(prediction[0])
-            date = date.today()
-            #Add Hasta to DB_TBL
-            params = (HastaID, Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, str(date), result)
+
+            #Add Test bilgileri and result to DB_TBL
+            params = (HastaID[0][0], Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, str(date.today()), int(prediction[0]))
             cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
             conn.commit()
-            
-    
-        # Open file in append mode
-            with open('diabetes.csv', 'a+', newline='') as write_obj:
-                # Create a writer object from csv module
-                csv_writer = writer(write_obj)
-                # Add contents of list as last row in the csv file
-                csv_writer.writerow(input_list)
-    
+        
+# ------------------------Test and Show Result------------------------ #    
     
 
-    
+# ------------------------------- Web page ------------------------------------ #    
     
     
     
