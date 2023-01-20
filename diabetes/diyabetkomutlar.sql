@@ -42,7 +42,7 @@ VALUES (@hastaID, @gebelik, @glikoz, @kan, @deri, @insulin, @vke, @soyagac, @yas
 END
 
 -- ÖRNEK 2 --
-EXEC TestEkle @hastaID=3, @gebelik=0, @glikoz=137, @kan=20, @deri=35, @insulin=168, @vke=43.1, @soyagac=2.288, @yas=22, @sonuc=0
+EXEC TestEkle @hastaID=1, @gebelik=0, @glikoz=137, @kan=20, @deri=35, @insulin=168, @vke=43.1, @soyagac=2.288, @yas=22, @sonuc=0
 
 
 --HastaTestGetir Stored Procedure--

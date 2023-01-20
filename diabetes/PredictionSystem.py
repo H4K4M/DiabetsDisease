@@ -200,8 +200,8 @@ if agree:
             conn.commit()
 
             #Add Test bilgileri and result to DB_TBL
-            params = (HastaID[0][0], Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, str(date.today()), int(prediction[0]))
-            cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @tarih=?, @sonuc=?",params )
+            params = (HastaID[0][0], Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, int(prediction[0]))
+            cursor.execute("EXEC TestEkle @hastaID=?, @gebelik=?, @glikoz=?, @kan=?, @deri=?, @insulin=?, @vke=?, @soyagac=?, @yas=?, @sonuc=?",params )
             conn.commit()
         
 # ------------------------Test and Show Result------------------------ #    
